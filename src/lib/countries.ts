@@ -88,3 +88,40 @@ export const formatCurrency = (amount: number, currency: string): string => {
   
   return `${amount.toLocaleString("ar")} ${currencySymbols[currency] || currency}`;
 };
+
+export const getPhoneNumberFormat = (countryCode: string): { placeholder: string; pattern: string; prefix: string } => {
+  const formats: Record<string, { placeholder: string; pattern: string; prefix: string }> = {
+    SA: {
+      placeholder: "+966 5X XXX XXXX",
+      pattern: "^\\+966[0-9]{9}$",
+      prefix: "+966"
+    },
+    AE: {
+      placeholder: "+971 5X XXX XXXX",
+      pattern: "^\\+971[0-9]{9}$",
+      prefix: "+971"
+    },
+    KW: {
+      placeholder: "+965 XXXX XXXX",
+      pattern: "^\\+965[0-9]{8}$",
+      prefix: "+965"
+    },
+    QA: {
+      placeholder: "+974 XXXX XXXX",
+      pattern: "^\\+974[0-9]{8}$",
+      prefix: "+974"
+    },
+    OM: {
+      placeholder: "+968 XXXX XXXX",
+      pattern: "^\\+968[0-9]{8}$",
+      prefix: "+968"
+    },
+    BH: {
+      placeholder: "+973 XXXX XXXX",
+      pattern: "^\\+973[0-9]{8}$",
+      prefix: "+973"
+    },
+  };
+  
+  return formats[countryCode] || formats.SA;
+};

