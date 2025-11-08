@@ -125,3 +125,18 @@ export const getPhoneNumberFormat = (countryCode: string): { placeholder: string
   
   return formats[countryCode] || formats.SA;
 };
+
+export const getCountryCodeFromServiceKey = (serviceKey: string): string => {
+  const key = serviceKey.toLowerCase();
+  
+  // Check for country codes in service key
+  if (key.includes('kw') || key.includes('kuwait')) return 'KW';
+  if (key.includes('qa') || key.includes('qatar')) return 'QA';
+  if (key.includes('om') || key.includes('oman')) return 'OM';
+  if (key.includes('bh') || key.includes('bahrain')) return 'BH';
+  if (key.includes('ae') || key.includes('uae') || key.includes('emirates')) return 'AE';
+  if (key.includes('sa') || key.includes('saudi')) return 'SA';
+  
+  // Default to Saudi Arabia
+  return 'SA';
+};
